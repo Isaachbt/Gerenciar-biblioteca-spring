@@ -2,7 +2,7 @@ package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.contro
 
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.utils.AuthenticationFacade;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.User;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.BooksServiceImp;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.UserServiceImp;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 class UserControllerTest {
@@ -52,9 +51,9 @@ class UserControllerTest {
         livros.add(new Livros(2L,"Marte","dorb","astrono",false,false));
         livros.add(new Livros(1L,"Selva","vik","mato",false,false));
 
-        when(booksServiceImp.getAllBooksUser(1L)).thenReturn(Optional.of(livros));
+        when(booksServiceImp.getAllBooksUser(1L)).thenReturn(livros);
 
-        ResponseEntity<List<Object>> responseEntity = userController.findAllLivrosByUserId();
+        ResponseEntity<List<?>> responseEntity = userController.findAllLivrosByUserId();
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());

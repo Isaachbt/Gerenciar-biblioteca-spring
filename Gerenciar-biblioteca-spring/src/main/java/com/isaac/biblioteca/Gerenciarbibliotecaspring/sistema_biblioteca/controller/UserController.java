@@ -1,11 +1,15 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.controller;
 
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotFound;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.utils.AuthenticationFacade;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotDisponivel;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotFoundException;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.User;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.BooksServiceImp;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.UserServiceImp;
-import jakarta.annotation.PostConstruct;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.BooksService;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,107 +28,56 @@ import java.util.Optional;
 public class UserController {
 
     @Autowired
-    private UserServiceImp serviceImp;
-
+    private UserService serviceImp;
     @Autowired
-    private BooksServiceImp booksServiceImp;
+    private BooksService booksServiceImp;
     @Autowired
     private AuthenticationFacade authenticationFacade;
 
     @GetMapping("/perfil")
-    public ResponseEntity<Object> meuPerfil(){
-        Optional<User> userLogado = serviceImp.findByUser(authenticationFacade.getCurrentUser().getId());
+    public ResponseEntity<Object> meuPerfil() {
+        Long userId = authenticationFacade.getCurrentUser().getId();
+        Optional<User> userLogado = serviceImp.findByUser(userId);
 
-        if (userLogado.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario não encontrado, cadastre-se.");
+        if (userLogado.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado, cadastre-se.");
         }
+
         User user = userLogado.get();
+        List<Livros> getAllBooks = booksServiceImp.getAllBooksUser(userId);
 
-        Optional<List<Livros>> getAllBooks = booksServiceImp.getAllBooksUser(authenticationFacade.getCurrentUser().getId());
-
-        if (getAllBooks.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario não tem livros na estante.");
+        if (getAllBooks.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.OK).body("Usuário não tem livros na estante.");
         }
-        user.setLivros(getAllBooks.get());
+
+        user.setLivros(getAllBooks);
         return ResponseEntity.ok().body(user);
     }
 
     @GetMapping("/my-biblioteca")
-    public ResponseEntity<List<Object>> findAllLivrosByUserId(){
-        List<Livros> myBooks = booksServiceImp.getAllBooksUser(authenticationFacade.getCurrentUser().getId()).get();
-        if (myBooks.isEmpty()){
-            throw new RuntimeException("Estante vazia");
-        }
+    public ResponseEntity<List<?>> findAllLivrosByUserId(){
+            List<Livros> myBooks = booksServiceImp.getAllBooksUser(authenticationFacade.getCurrentUser().getId());
 
-        return ResponseEntity.ok(Collections.singletonList(myBooks));
+            if (myBooks.isEmpty()){
+                return ResponseEntity.status(HttpStatus.OK).body(List.of("Estante de livros vazia, tente adcionar livros."));
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(myBooks);
     }
 
     @Transactional
     @DeleteMapping("/remove/{id_book}")
-    public ResponseEntity<Object> removerLivro(@PathVariable(value = "id_book") @NotNull Long id_book) {
-        Optional<User> userOptional = serviceImp.findByUser(authenticationFacade.getCurrentUser().getId());
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
-        }
-
-        User user = userOptional.get();
-        List<Livros> listLivro = user.getLivros();
-
-        Optional<Livros> livroOptional = listLivro.stream()
-                .filter(livro -> livro.getId().equals(id_book))
-                .findFirst();
-
-        if (livroOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado para este usuário");
-        }
-
-        Livros livro = livroOptional.get();
-        livro.setUser(null);
-        livro.setDisponivel(true);
-
-        listLivro.remove(livro);
-
-        serviceImp.save(user);
-        booksServiceImp.save(livro);
-
-        return ResponseEntity.status(HttpStatus.OK).body("Livro removido com sucesso do usuário");
+    public ResponseEntity<Object> removerLivro(@PathVariable(value = "id_book") @NotNull Long idBook) {
+        return serviceImp.removerLivro(authenticationFacade.getCurrentUser().getId(), idBook);
     }
 
     @PutMapping("/add/{id_book}")
     public ResponseEntity<Object> reservarLivro(@PathVariable(value = "id_book")@NotNull Long id_book){
-        Optional<Livros> existsNameLivro = booksServiceImp.findByBook(id_book);
 
-        if (existsNameLivro.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Livro não encontrado");
-        }
+        Long userId = authenticationFacade.getCurrentUser().getId();
 
-        Livros livros = existsNameLivro.get();
-        if (!livros.isDisponivel()){
-            return ResponseEntity.status(HttpStatus.CONTINUE).body("Livro reservado por outro Usuário.");
-        }
+            serviceImp.reservarLivroUser(id_book, userId);
+            return ResponseEntity.ok("Livro reservado com sucesso.");
 
-        Optional<User> userOptional = serviceImp.findByUser(authenticationFacade.getCurrentUser().getId());
-
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado");
-        }
-        User user = userOptional.get();
-        List<Livros> listLivro = user.getLivros();
-
-        livros.setUser(user);
-        livros.setDisponivel(false);
-
-        if (listLivro == null){
-            listLivro = new ArrayList<>();
-        }
-        listLivro.add(livros);
-        user.setLivros(listLivro);
-
-
-        booksServiceImp.save(livros);
-        serviceImp.save(user);
-
-        return ResponseEntity.status(HttpStatus.OK).body("Livro reservado com sucesso");
     }
 
 }

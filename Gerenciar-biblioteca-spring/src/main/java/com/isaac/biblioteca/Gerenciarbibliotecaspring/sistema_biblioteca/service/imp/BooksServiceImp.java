@@ -3,7 +3,10 @@ package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.servic
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository.BooksRepository;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.BooksService;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +20,10 @@ public class BooksServiceImp implements BooksService {
 
     @Override
     public List<Livros> getAll() {
+        List<Livros> livro = repository.findAll();
+        if (livro.isEmpty()) {
+            throw new BookNotFoundException();
+        }
         return repository.findAll();
     }
 
@@ -36,12 +43,13 @@ public class BooksServiceImp implements BooksService {
     }
 
     @Override
-    public Optional<List<Livros>> getAllBooksUser(Long id) {
+    public List<Livros> getAllBooksUser(Long id) {
         return repository.getAllBooksUser(id);
     }
 
-
     public Optional<Livros> findByName(String nome){
-        return repository.findByName(nome);
+        Livros livros = repository.findByName(nome).orElseThrow(BookNotFoundException::new);
+        return Optional.ofNullable(livros);
+
     }
 }

@@ -1,6 +1,6 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository;
 
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.User;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

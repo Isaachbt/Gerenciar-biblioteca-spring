@@ -18,6 +18,6 @@ public interface BooksRepository extends JpaRepository<Livros, Long> {
     Optional<Livros> findByNameAndIdUser(String name, Long userId);
 
     @Query("SELECT l FROM Livros l WHERE l.user.id = ?1")
-    Optional<List<Livros>> getAllBooksUser(Long id);
+    List<Livros> getAllBooksUser(Long id);
 
 }

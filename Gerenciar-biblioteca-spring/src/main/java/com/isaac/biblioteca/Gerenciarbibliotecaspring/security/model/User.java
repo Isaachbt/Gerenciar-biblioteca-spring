@@ -1,6 +1,7 @@
-package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model;
+package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model;
 
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.enums.RoleEnum;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

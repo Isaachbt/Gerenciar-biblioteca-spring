@@ -29,12 +29,13 @@ public class ConfigSecurity {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST,"/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/list-books/allBooks").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/list-books/search/{name}").permitAll()
                         .requestMatchers(HttpMethod.GET, "setup/**").hasRole("USER")
-//                        .requestMatchers(HttpMethod.GET, "setup/my-biblioteca").hasRole("USER")
+//                      .requestMatchers(HttpMethod.GET, "setup/my-biblioteca").hasRole("USER")
                         .requestMatchers(HttpMethod.DELETE,"/setup/**").hasRole("USER")
                         .requestMatchers(HttpMethod.PUT,"/setup/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.GET,"/list-books/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/auth/**").permitAll()
 //                        .requestMatchers(HttpMethod.POST,"auth/login").permitAll()
 
                         .anyRequest().authenticated())

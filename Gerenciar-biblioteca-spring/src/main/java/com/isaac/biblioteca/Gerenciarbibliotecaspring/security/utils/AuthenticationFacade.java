@@ -1,7 +1,6 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.utils;
 
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.User;
-import com.sun.security.auth.UserPrincipal;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

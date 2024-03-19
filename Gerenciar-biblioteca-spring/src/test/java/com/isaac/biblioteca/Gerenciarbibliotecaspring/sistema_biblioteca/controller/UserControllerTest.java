@@ -15,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -25,20 +23,16 @@ class UserControllerTest {
 
     @Mock
     private UserServiceImp userService;
-
-    @Mock
-    private BooksServiceImp booksService;
     @Mock
     private AuthenticationFacade authenticationFacade;
     @InjectMocks
     private UserController userController;
     @Mock
     private BooksServiceImp booksServiceImp;
-    private User user;
 
     @BeforeEach
     public void setUp() {
-        user = new User();
+        User user = new User();
         user.setId(1L);
         when(authenticationFacade.getCurrentUser()).thenReturn(user);
     }

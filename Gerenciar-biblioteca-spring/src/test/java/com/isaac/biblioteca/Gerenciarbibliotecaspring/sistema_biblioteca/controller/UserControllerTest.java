@@ -5,6 +5,7 @@ import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.L
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.BooksServiceImp;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.UserServiceImp;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -17,7 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 class UserControllerTest {
 
@@ -26,14 +28,20 @@ class UserControllerTest {
 
     @Mock
     private BooksServiceImp booksService;
-
     @Mock
     private AuthenticationFacade authenticationFacade;
-
     @InjectMocks
     private UserController userController;
     @Mock
     private BooksServiceImp booksServiceImp;
+    private User user;
+
+    @BeforeEach
+    public void setUp() {
+        user = new User();
+        user.setId(1L);
+        when(authenticationFacade.getCurrentUser()).thenReturn(user);
+    }
 
     public UserControllerTest() {
         MockitoAnnotations.openMocks(this);
@@ -41,15 +49,12 @@ class UserControllerTest {
 
     @Test
     public void testFindAllLivrosByUserId() {
-        User user = new User();
-        user.setId(1L);
-        when(authenticationFacade.getCurrentUser()).thenReturn(user);
 
         List<Livros> livros = new ArrayList<>();
 
         livros.add(new Livros(1L,"Era do gelo","wirk","gelo",false,false));
         livros.add(new Livros(2L,"Marte","dorb","astrono",false,false));
-        livros.add(new Livros(1L,"Selva","vik","mato",false,false));
+        livros.add(new Livros(3L,"Selva","vik","mato",false,false));
 
         when(booksServiceImp.getAllBooksUser(1L)).thenReturn(livros);
 
@@ -57,7 +62,20 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(responseEntity.getBody());
-        assertEquals(1, responseEntity.getBody().size());
+        assertEquals(3, responseEntity.getBody().size());
     }
 
+    @Test
+    public void testRemoverLivro_Success() {
+
+        Long idBook = 123L;
+        ResponseEntity<Object> expectedResponse = ResponseEntity.ok().build();
+        when(userService.removerLivro(eq(1L), eq(idBook))).thenReturn(expectedResponse);
+
+        ResponseEntity<Object> responseEntity = userController.removerLivro(idBook);
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+
+
+        verify(userService, times(1)).removerLivro(eq(1L), eq(idBook));
+    }
 }

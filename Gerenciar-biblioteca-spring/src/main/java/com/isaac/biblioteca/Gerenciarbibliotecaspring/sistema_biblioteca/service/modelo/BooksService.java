@@ -14,7 +14,7 @@ public interface BooksService {
 
     Optional<Livros> livrosUser(String nome,Long id);
 
-    Optional<List<Livros>> getAllBooksUser(Long id);
+    List<Livros> getAllBooksUser(Long id);
 
 
 

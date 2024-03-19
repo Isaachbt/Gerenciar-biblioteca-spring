@@ -4,19 +4,31 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.LoginDto;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.PasswordIncorreta;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserExists;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotCadastrado;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotFound;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.CadastrarDTO;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.LoginDto;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.service.AuthenticationService;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.User;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository.UserRepository;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 
 @Service
 public class AuthenticationServiceImp implements AuthenticationService {
@@ -29,13 +41,17 @@ public class AuthenticationServiceImp implements AuthenticationService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = repository.findByLogin(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + username));
+                .orElseThrow(() -> new UserNotFound("Usuário não encontrado: " + username));
 
         if (user == null) {
-            throw new UsernameNotFoundException("Credenciais inválidas para o usuário: " + username);
+            throw new UserNotCadastrado("Credenciais inválidas para o usuário: " + username);
         }
 
         return user;
+    }
+    @Override
+    public String login(LoginDto dto) throws UserNotFound,PasswordIncorreta {
+        return obterToken(dto);
     }
 
     @Override

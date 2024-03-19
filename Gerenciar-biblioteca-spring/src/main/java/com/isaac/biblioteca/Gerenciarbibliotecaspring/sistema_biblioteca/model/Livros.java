@@ -1,10 +1,10 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor

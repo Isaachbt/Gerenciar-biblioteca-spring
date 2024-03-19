@@ -1,13 +1,11 @@
-package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model;
+package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model;
 
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.enums.RoleEnum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record CadastrarDTO(
-        @NotBlank String nome,
+public record LoginDto(
         @NotBlank String login,
-        @NotBlank String password,
-        @NotNull RoleEnum role
-) {
+        @NotBlank String password
+){
 }

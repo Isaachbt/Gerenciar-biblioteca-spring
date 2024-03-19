@@ -1,7 +1,7 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.config;
 
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.service.AuthenticationService;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.User;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

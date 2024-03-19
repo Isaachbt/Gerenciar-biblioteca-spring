@@ -54,6 +54,8 @@ Este aplicativo implementa a segurança usando o Spring Security. As seguintes c
 - Tokens com tempo.
 
 - Acesso não autorizado: 403
+- Não encontrado: 404
+- Usuario ja tem conta: 409
 
 # Tecnologias Utilizadas
 - Spring Boot

@@ -3,7 +3,6 @@ package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -23,8 +22,8 @@ public class ValidationExceptionHandler {
     }
 
     @ExceptionHandler(PasswordIncorreta.class)
-    private ResponseEntity<String> passwordIncorreta(PasswordIncorreta e){
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Senha incorreta.");
+    private ResponseEntity<PasswordIncorreta> passwordIncorreta(PasswordIncorreta e){
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new PasswordIncorreta());
     }
 
     @ExceptionHandler(UserExists.class)
@@ -32,8 +31,8 @@ public class ValidationExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body("Usuario encontrado.");
     }
 
-    @ExceptionHandler(UserNotFound.class)
-    private ResponseEntity<String> userNotFound(UserNotFound e){
+    @ExceptionHandler(NotFound.class)
+    private ResponseEntity<String> userNotFound(NotFound e){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado.");
     }
 

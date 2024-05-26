@@ -1,6 +1,7 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo;
 
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ public interface UserService {
     User save(User user);
 
     ResponseEntity<Object> removerLivro(Long userId,Long idBook);
-    void reservarLivroUser(Long idBook,Long idUser);
+    Livros reservarLivroUser(Long idBook, Long idUser);
 
 
 }

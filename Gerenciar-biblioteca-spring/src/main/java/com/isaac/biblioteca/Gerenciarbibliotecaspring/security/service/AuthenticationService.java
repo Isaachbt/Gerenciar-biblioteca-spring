@@ -12,4 +12,5 @@ public interface AuthenticationService extends UserDetailsService {
 
     String validToken(String token);
     String gerarTokenJwt(User user);
+    String getLoginFromExpiredToken(String token);
 }

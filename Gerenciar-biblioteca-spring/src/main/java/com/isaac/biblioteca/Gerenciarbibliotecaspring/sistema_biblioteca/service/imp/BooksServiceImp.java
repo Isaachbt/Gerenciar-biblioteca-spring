@@ -1,5 +1,6 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp;
 
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.NotFound;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository.BooksRepository;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.BooksService;
@@ -28,8 +29,10 @@ public class BooksServiceImp implements BooksService {
     }
 
     @Override
-    public Optional<Livros> findByBook(Long id) {
-       return repository.findById(id);
+    public Optional<Livros> findByBook(Long id) throws BookNotFoundException {
+       Optional<Livros> livros = repository.findById(id);
+       if (livros.isEmpty()) throw new BookNotFoundException("Não foi possivel encontrar o livro com o id: ");
+       return livros;
     }
 
     @Override
@@ -48,8 +51,8 @@ public class BooksServiceImp implements BooksService {
     }
 
     public Optional<Livros> findByName(String nome){
-        Livros livros = repository.findByName(nome).orElseThrow(BookNotFoundException::new);
-        return Optional.ofNullable(livros);
-
+        Optional<Livros> livros =  repository.findByName(nome);
+        if (livros.isEmpty()) throw new BookNotFoundException("Livro ( "+nome+") não encontrado.");
+        return livros;
     }
 }

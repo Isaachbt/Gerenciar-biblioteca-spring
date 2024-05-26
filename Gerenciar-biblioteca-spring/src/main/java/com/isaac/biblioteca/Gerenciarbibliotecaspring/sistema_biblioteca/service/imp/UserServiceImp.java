@@ -1,6 +1,6 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp;
 
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotFound;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.NotFound;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotDisponivel;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotFoundException;
@@ -82,8 +82,8 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public void reservarLivroUser(Long idBook, Long idUser) throws BookNotFoundException, BookNotDisponivel,UserNotFound {
-        User user = findByUser(idUser).orElseThrow(UserNotFound::new);
+    public Livros reservarLivroUser(Long idBook, Long idUser) throws BookNotFoundException, BookNotDisponivel, NotFound {
+        User user = findByUser(idUser).orElseThrow(NotFound::new);
 
         Livros livro = booksServiceImp.findByBook(idBook).orElseThrow(BookNotFoundException::new);
 
@@ -102,8 +102,7 @@ public class UserServiceImp implements UserService {
         user.setLivros(userLivros);
 
         save(user);
-        booksServiceImp.save(livro);
+        return booksServiceImp.save(livro);
     }
-
 
 }

@@ -2,7 +2,7 @@ package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.controller;
 
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.PasswordIncorreta;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserExists;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotFound;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.NotFound;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.service.AuthenticationService;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.CadastrarDTO;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.LoginDto;
@@ -61,15 +61,25 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> auth(@RequestBody LoginDto dto){
-        User searchUser = userService.findByLogin(dto.login()).orElseThrow(UserNotFound::new);
+        User searchUser = userService.findByLogin(dto.login()).orElseThrow(NotFound::new);
 
+        searchUser.setOnline(true);
         if (!passwordEncoder.matches(dto.password(), searchUser.getPassword())) {
             throw new PasswordIncorreta();
         }
         var authenticationToken = new UsernamePasswordAuthenticationToken(dto.login(), dto.password());
         authenticationManager.authenticate(authenticationToken);
 
+        userService.save(searchUser);
         return ResponseEntity.ok(authenticationService.login(dto));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Object> logout(@RequestBody LoginDto dto) {
+        User searchUser = userService.findByLogin(dto.login()).orElseThrow(NotFound::new);
+        searchUser.setOnline(false);
+        userService.save(searchUser);
+        return ResponseEntity.ok().build();
     }
 
 

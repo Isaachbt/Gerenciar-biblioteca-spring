@@ -1,13 +1,8 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.controller;
 
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotFound;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.utils.AuthenticationFacade;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotDisponivel;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotFoundException;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.BooksServiceImp;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.UserServiceImp;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.BooksService;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.UserService;
 import jakarta.transaction.Transactional;
@@ -18,13 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/setup")
+@RequestMapping("/setup") //localhosta:8080/setup/perfil
 public class UserController {
 
     @Autowired

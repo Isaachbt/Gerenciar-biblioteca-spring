@@ -1,5 +1,6 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.security.config;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.service.AuthenticationService;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository.UserRepository;
@@ -28,28 +29,42 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = extrairTokenHeader(request);
 
-        if (token != null){
-            String login = authenticationService.validToken(token);
-            Optional<User> user = repository.findByLogin(login);
+        if (token != null) {
+            try {
+                String login = authenticationService.validToken(token);
+                Optional<User> user = repository.findByLogin(login);
 
-            var authentication = new UsernamePasswordAuthenticationToken(user.get(),null,user.get().getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (user.isPresent()) {
+                    var authentication = new UsernamePasswordAuthenticationToken(user.get(), null, user.get().getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (TokenExpiredException e) {
+                handleTokenExpiration(token);
+            }
         }
-        filterChain.doFilter(request,response);
+
+        filterChain.doFilter(request, response);
     }
 
-
-    private String extrairTokenHeader(HttpServletRequest request){
+    private String extrairTokenHeader(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
 
-        if (authHeader == null){
+        if (authHeader == null) {
             return null;
         }
 
-        if (!authHeader.split(" ")[0].equals("Bearer")){
+        if (!authHeader.split(" ")[0].equals("Bearer")) {
             return null;
         }
         return authHeader.split(" ")[1];
+    }
+
+    private void handleTokenExpiration(String token) {
+        String login = authenticationService.getLoginFromExpiredToken(token);
+        Optional<User> user = repository.findByLogin(login);
+        user.ifPresent(u -> {
+            u.setOnline(false);
+            repository.save(u);
+        });
     }
 }

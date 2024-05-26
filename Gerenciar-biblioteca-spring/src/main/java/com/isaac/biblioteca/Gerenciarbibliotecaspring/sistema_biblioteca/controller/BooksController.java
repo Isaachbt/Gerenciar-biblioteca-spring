@@ -1,5 +1,6 @@
 package com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.controller;
 
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.utils.RespostaMSG;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.model.Livros;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.imp.BooksServiceImp;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.exeptions.BookNotFoundException;
@@ -26,7 +27,8 @@ public class BooksController {
 
     @GetMapping("/search/{name}")
     public ResponseEntity<Object> findOne(@PathVariable(value = "name") @NotBlank String name){
-            return ResponseEntity.ok(serviceImp.findByName(name));
+            serviceImp.findByName(name);
+            return ResponseEntity.ok(new RespostaMSG("Livro ("+name+") reservado com sucesso."));
     }
 
 }

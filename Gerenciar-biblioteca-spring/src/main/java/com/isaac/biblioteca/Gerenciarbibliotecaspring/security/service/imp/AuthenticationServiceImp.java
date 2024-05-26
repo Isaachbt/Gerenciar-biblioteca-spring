@@ -4,25 +4,19 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.PasswordIncorreta;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserExists;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotCadastrado;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.UserNotFound;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.CadastrarDTO;
+import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.exception.NotFound;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.LoginDto;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.service.AuthenticationService;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.security.model.User;
 import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.repository.UserRepository;
-import com.isaac.biblioteca.Gerenciarbibliotecaspring.sistema_biblioteca.service.modelo.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -41,7 +35,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = repository.findByLogin(username)
-                .orElseThrow(() -> new UserNotFound("Usuário não encontrado: " + username));
+                .orElseThrow(() -> new NotFound("Usuário não encontrado: " + username));
 
         if (user == null) {
             throw new UserNotCadastrado("Credenciais inválidas para o usuário: " + username);
@@ -50,7 +44,7 @@ public class AuthenticationServiceImp implements AuthenticationService {
         return user;
     }
     @Override
-    public String login(LoginDto dto) throws UserNotFound,PasswordIncorreta {
+    public String login(LoginDto dto) throws NotFound,PasswordIncorreta {
         return obterToken(dto);
     }
 
@@ -95,6 +89,21 @@ public class AuthenticationServiceImp implements AuthenticationService {
         return LocalDateTime.now()
                 .plusHours(8)
                 .toInstant(ZoneOffset.of("-03:00"));
+    }
+
+    public String getLoginFromExpiredToken(String token) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256("my-secret");
+            return JWT.require(algorithm)
+                    .withIssuer("gerenciar-biblioteca-spring")
+                    .build()
+                    .verify(token)
+                    .getSubject();
+        } catch (TokenExpiredException e) {
+            return JWT.decode(token).getSubject();
+        } catch (JWTVerificationException e) {
+            throw new RuntimeException("Token inválido", e);
+        }
     }
 
 

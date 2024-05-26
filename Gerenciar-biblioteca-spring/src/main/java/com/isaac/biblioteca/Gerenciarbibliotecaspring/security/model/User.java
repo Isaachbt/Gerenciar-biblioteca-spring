@@ -31,15 +31,31 @@ public class User implements UserDetails {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
-    //@JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Livros> livros = new ArrayList<>();
+    @Column
+    private boolean online = false;
 
     public User(Long id, String nome, String login, String password) {
         this.id = id;
         this.nome = nome;
         this.login = login;
         this.password = password;
+    }
+
+    public User(String nome, String login, String password, RoleEnum role, List<Livros> livros) {
+        this.nome = nome;
+        this.login = login;
+        this.password = password;
+        this.role = role;
+        this.livros = livros;
+    }
+
+    public User(String nome, String login, String password, RoleEnum role) {
+        this.nome = nome;
+        this.login = login;
+        this.password = password;
+        this.role = role;
     }
 
     public User() {
